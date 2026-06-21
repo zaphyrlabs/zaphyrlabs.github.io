@@ -1,522 +1,525 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zaphyr Labs | Virtual World OS</title>
+    <title>Zaphyr — Structured Intelligence</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Space Grotesk (Tech Editorial) & Inter (Clean UI) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for UI icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            bg: '#050505',
+                            card: '#0A0A0B',
+                            border: '#161618',
+                            borderMuted: '#101012',
+                            textMuted: '#8E8E93',
+                            accentCopper: '#D97706',
+                            accentBlue: '#2563EB',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono&display=swap');
-
-        :root {
-            --accent: #6366f1;
-            --accent-glow: rgba(99, 102, 241, 0.4);
-            --bg: #020202;
-            --panel-bg: rgba(255, 255, 255, 0.015);
-        }
-
-        * {
-            cursor: none !important;
-            scroll-behavior: smooth;
-            -webkit-font-smoothing: antialiased;
-        }
-
         body {
-            background-color: var(--bg);
-            color: #e2e8f0;
-            font-family: 'Space Grotesk', sans-serif;
+            background-color: #050505;
+            font-family: 'Inter', sans-serif;
             overflow-x: hidden;
-            margin: 0;
-            padding: 0;
         }
 
-        /* --- Custom Cursor --- */
-        #cursor {
-            width: 8px;
-            height: 8px;
-            background: white;
-            border-radius: 50%;
-            position: fixed;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-            z-index: 10000;
-            mix-blend-mode: difference;
-            transition: width 0.3s, height 0.3s;
-            transform: translate(-50%, -50%);
-        }
-
-        #cursor-glow {
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
-            position: fixed;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-            z-index: 9999;
-            transform: translate(-50%, -50%);
-            opacity: 0.2;
-        }
-
-        /* --- Floating Navbar --- */
-        .nav-container {
-            position: fixed;
-            top: 25px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 5000;
-        }
-
-        .nav-curved {
-            background: rgba(10, 10, 10, 0.4);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 100px;
-            padding: 10px 30px;
-            display: flex;
-            gap: 2rem;
-            align-items: center;
-        }
-
-        .nav-link {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.3em;
-            color: #475569;
-            font-weight: 700;
-            transition: all 0.4s ease;
-        }
-
-        .nav-link:hover { color: white; text-shadow: 0 0 10px var(--accent); }
-
-        /* --- Grid Background --- */
-        #canvas-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            opacity: 0.12;
-            mask-image: radial-gradient(circle at center, black, transparent 80%);
-        }
-
-        /* --- Reveal Animations --- */
-        .reveal {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .reveal.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* --- Gateway Hub Box --- */
-        .gateway-hub {
-            background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 40px;
-            padding: 4rem;
-            position: relative;
-            overflow: hidden;
-            backdrop-filter: blur(20px);
-            box-shadow: 0 40px 100px -20px rgba(0,0,0,0.5);
-        }
-
-        .gateway-hub::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle at center, var(--accent-glow) 0%, transparent 50%);
-            opacity: 0.1;
-            pointer-events: none;
-        }
-
-        .countdown-unit {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-width: 90px;
-        }
-
-        .countdown-value {
-            font-size: 4rem;
-            font-weight: 800;
-            font-family: 'Space Mono', monospace;
-            color: white;
-            line-height: 1;
-            letter-spacing: -0.05em;
-        }
-
-        .countdown-label {
-            font-size: 0.6rem;
-            text-transform: uppercase;
-            letter-spacing: 0.3em;
-            color: var(--accent);
-            margin-top: 0.75rem;
-            font-weight: 600;
-        }
-
-        .status-pulse {
-            width: 10px;
-            height: 10px;
-            background: #22c55e;
-            border-radius: 50%;
-            box-shadow: 0 0 15px #22c55e;
-            animation: pulse-green 2s infinite;
-        }
-
-        @keyframes pulse-green {
-            0% { transform: scale(1); opacity: 1; }
-            70% { transform: scale(2.5); opacity: 0; }
-            100% { transform: scale(1); opacity: 0; }
-        }
-
-        /* --- Hero Visuals --- */
-        .hero-glitch {
-            font-size: clamp(3rem, 12vw, 10rem);
-            font-weight: 900;
-            letter-spacing: -0.04em;
-            background: linear-gradient(180deg, #fff 30%, #444 100%);
+        /* Beautiful minimalist matte brand gradient representing Zaphyr's brand identity colors */
+        .text-zaphyr-gradient {
+            background: linear-gradient(135deg, #F59E0B 0%, #8B5CF6 50%, #2563EB 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        .v-line {
-            position: fixed;
-            top: 0;
-            width: 1px;
-            height: 100%;
-            background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.03), transparent);
-            z-index: -1;
+        /* Minimal scrollbar design */
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #050505;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1C1C1E;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2C2C2E;
         }
 
-        .card-glass {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 24px;
-            transition: all 0.3s ease;
-        }
-        .card-glass:hover {
-            background: rgba(255, 255, 255, 0.04);
-            border-color: rgba(99, 102, 241, 0.3);
-            transform: translateY(-5px);
+        /* Sleek utility settings */
+        input:focus {
+            outline: none;
         }
     </style>
 </head>
-<body>
+<body class="text-zinc-300 antialiased selection:bg-zinc-800 selection:text-white">
 
-    <div id="cursor"></div>
-    <div id="cursor-glow"></div>
-    <canvas id="canvas-bg"></canvas>
+    <!-- Minimal Curved Floating Navbar -->
+    <header class="fixed top-6 left-0 right-0 z-50 px-4 max-w-5xl mx-auto">
+        <div class="bg-[#0A0A0B]/90 backdrop-blur-md border border-brand-border py-3 px-6 rounded-full flex items-center justify-between transition-all duration-300">
+            <!-- Brand Logo -->
+            <a href="#hero" class="flex items-center space-x-3 group">
+                <svg viewBox="0 0 100 100" class="w-5 h-5 text-white transition-transform duration-300 group-hover:scale-105" stroke="currentColor" stroke-width="8" fill="none">
+                    <path d="M50 15 L85 50 L50 85 L15 50 Z" />
+                </svg>
+                <span class="font-display font-medium text-base tracking-tight text-white">Zaphyr</span>
+            </a>
 
-    <div class="v-line" style="left: 10%;"></div>
-    <div class="v-line" style="left: 30%;"></div>
-    <div class="v-line" style="left: 70%;"></div>
-    <div class="v-line" style="left: 90%;"></div>
+            <!-- Centralized Navigation Links -->
+            <nav class="hidden md:flex items-center space-x-8 text-xs font-medium tracking-wider uppercase text-zinc-400">
+                <a href="#hero" class="hover:text-white transition-colors duration-200">Home</a>
+                <a href="#veridex-atlas" class="hover:text-white transition-colors duration-200">Veridex Atlas</a>
+                <a href="#ecosystem" class="hover:text-white transition-colors duration-200">Ecosystem</a>
+                <a href="#architecture" class="hover:text-white transition-colors duration-200">Architecture</a>
+            </nav>
 
-    <div class="nav-container">
-        <nav class="nav-curved">
-            <a href="#home" class="nav-link">Initialize</a>
-            <a href="#projects" class="nav-link">Gateways</a>
-            <a href="#about" class="nav-link">Operator</a>
-            <a href="#contact" class="nav-link">Signal</a>
-        </nav>
-    </div>
-
-    <!-- Hero Section -->
-    <section id="home" class="min-h-screen flex items-center justify-center px-6">
-        <div class="max-w-6xl w-full">
-            <div class="reveal active mb-6 flex items-center gap-4">
-                <div class="px-3 py-1 border border-indigo-500/20 bg-indigo-500/5 rounded-full text-[10px] text-indigo-400 font-mono">NODE_PRIMARY_ZAPHYR</div>
-                <div class="h-[1px] w-12 bg-indigo-500/30"></div>
-                <span class="text-[10px] uppercase tracking-[0.4em] text-gray-600">Chandigarh, IN // Signal Locked</span>
+            <!-- Minimal Access Action -->
+            <div>
+                <a href="#waitlist" class="text-xs font-semibold uppercase tracking-wider text-white bg-zinc-900 border border-brand-border hover:bg-zinc-800 px-4 py-2 rounded-full transition-all duration-200">
+                    Register
+                </a>
+                <button id="mobile-menu-btn" class="md:hidden text-zinc-400 hover:text-white ml-3 focus:outline-none" aria-label="Toggle menu">
+                    <i class="fa-solid fa-bars-staggered"></i>
+                </button>
             </div>
+        </div>
+
+        <!-- Sleek Mobile Dropdown -->
+        <div id="mobile-menu" class="hidden mt-2 bg-brand-card border border-brand-border rounded-3xl p-6 transition-all duration-300">
+            <nav class="flex flex-col space-y-4 text-sm font-medium tracking-wide">
+                <a href="#hero" class="text-zinc-400 hover:text-white py-1 border-b border-brand-borderMuted">Home</a>
+                <a href="#veridex-atlas" class="text-zinc-400 hover:text-white py-1 border-b border-brand-borderMuted">Veridex Atlas</a>
+                <a href="#ecosystem" class="text-zinc-400 hover:text-white py-1 border-b border-brand-borderMuted">Ecosystem</a>
+                <a href="#architecture" class="text-zinc-400 hover:text-white py-1">Architecture</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Minimalist Centralized Hero Section -->
+    <section id="hero" class="relative pt-36 pb-16 lg:pt-48 lg:pb-24 px-4 max-w-5xl mx-auto flex flex-col items-center justify-center text-center">
+        <!-- Minimalist Tag Badge -->
+        <div class="inline-flex items-center space-x-2 border border-brand-border bg-brand-card/50 px-3.5 py-1.5 rounded-full mb-6">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+            <span class="text-[10px] font-mono tracking-widest text-zinc-400 uppercase">Unified Product Ecosystem</span>
+        </div>
+
+        <!-- Big, Clean Centralized Title -->
+        <h1 class="font-display font-medium text-4xl sm:text-6xl text-white tracking-tight leading-none max-w-4xl">
+            Clean relational spaces designed for <span class="text-zaphyr-gradient">structured intelligence</span>
+        </h1>
+
+        <!-- Short Core Sub-headline (No fluff) -->
+        <p class="text-zinc-400 text-sm sm:text-base max-w-2xl mt-6 font-light leading-relaxed">
+            Zaphyr is an advanced architectural canvas housing next-generation applications. Curated with absolute clarity, strict source validation, and structured order.
+        </p>
+
+        <!-- Premium Image Frame for Zaphyr.jpg / Zaphyr.png -->
+        <div class="w-full max-w-3xl mt-12 bg-[#0A0A0B] border border-brand-border p-2 rounded-2xl shadow-2xl">
+            <div class="relative overflow-hidden rounded-xl bg-zinc-950 aspect-[16/9]">
+                <!-- Load provided images with dynamic fallback mechanisms -->
+                <img src="Zaphyr.jpg" alt="Zaphyr Universe Banner" onerror="this.src='zaphyr.png'; this.onerror=function(){this.src='https://placehold.co/1200x675/050505/ffffff?text=Zaphyr+Ecosystem'}" class="w-full h-full object-cover select-none">
+            </div>
+            <!-- Minimal Asset Citation -->
+            <div class="flex items-center justify-between px-3 py-2.5 text-[9px] font-mono text-zinc-500">
+                <span>SYSTEM VISUAL IDENTIFIER // Zaphyr.jpg</span>
+                <span>STATUS // DIRECTORY ACTIVE</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Project 01: Veridex Atlas Spotlight -->
+    <section id="veridex-atlas" class="py-20 border-t border-brand-border max-w-5xl mx-auto px-4">
+        
+        <!-- Section Header -->
+        <div class="text-center max-w-3xl mx-auto mb-16">
+            <span class="text-[10px] font-mono uppercase tracking-widest text-amber-500 font-semibold">PROJECT 01 // DEBUT RELEASE</span>
+            <h2 class="font-display font-medium text-3xl sm:text-4xl text-white tracking-tight mt-2">What is Veridex Atlas?</h2>
             
-            <h1 class="hero-glitch mb-8 reveal active scramble-trigger" data-value="ZAPHYR">
-                ZAPHYR
-            </h1>
-            
-            <div class="flex flex-col md:flex-row md:items-center gap-10 reveal active" style="transition-delay: 0.4s;">
-                <p class="text-gray-500 text-lg md:text-2xl font-light tracking-wide max-w-xl leading-relaxed">
-                    Meet <span class="text-white font-medium">Pranav</span> (known as <span class="text-indigo-400">Light</span>), a 16-year-old architecting <span class="text-white font-medium">Virtual Worlds</span> via Web3 infrastructure and <span class="text-indigo-400">Low-Level precision</span>.
+            <div class="text-zinc-300 text-sm sm:text-base mt-6 text-left space-y-6 leading-relaxed font-light max-w-2xl mx-auto">
+                <p>
+                    <strong>Veridex Atlas</strong> is a structured knowledge platform designed to present information with clarity, accuracy, and verifiable sources. It moves beyond traditional encyclopedic formats by organizing content into well-defined sections, supported by transparent references and live citation links.
                 </p>
-                <div class="hidden md:block h-20 w-[1px] bg-white/10"></div>
-                <div class="font-mono text-[10px] text-gray-600 space-y-1 uppercase tracking-widest">
-                    <div>> Status: Deploying Portal_01</div>
-                    <div>> Location: 30.7333° N, 76.7794° E</div>
-                    <div>> Stack: Rust / C++ / Web3</div>
-                </div>
+                <p>
+                    The platform is built to help users not only access information, but understand it with confidence. Each record is treated as a structured unit of knowledge—where context, sources, and consistency are prioritized over volume.
+                </p>
+                <p>
+                    Veridex Atlas integrates discovery, structured reading, comparative analysis, and personal knowledge management into a single, cohesive system.
+                </p>
             </div>
         </div>
-    </section>
 
-    <!-- Gateways Section -->
-    <section id="projects" class="py-40 px-6 max-w-7xl mx-auto">
-        <div class="reveal mb-24 flex flex-col items-center text-center">
-            <h2 class="text-6xl md:text-8xl font-black tracking-tighter mb-4 scramble-trigger" data-value="GATEWAYS">GATEWAYS</h2>
-            <p class="text-indigo-400 font-mono text-[10px] tracking-[0.6em] uppercase opacity-80">Mission_Control // Future_Reveals</p>
-        </div>
-
-        <div class="reveal gateway-hub">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
-                
-                <!-- Left: Portal Info -->
-                <div class="lg:col-span-5 border-b lg:border-b-0 lg:border-r border-white/10 pb-12 lg:pb-0 lg:pr-16">
-                    <div class="flex items-center gap-4 mb-10">
-                        <div class="status-pulse"></div>
-                        <span class="font-mono text-[11px] text-indigo-400 tracking-[0.4em] uppercase font-bold">Zaphyr Labs // Core Initiative</span>
+        <!-- Master Countdown Elements -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            
+            <!-- Countdown 01: Veridex Atlas Launch -->
+            <div class="bg-brand-card border border-brand-border rounded-xl p-6 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between border-b border-brand-borderMuted pb-3 mb-4">
+                        <span class="text-[10px] font-mono text-amber-500 font-bold uppercase tracking-widest">01 // VERIDEX ATLAS LAUNCH</span>
+                        <span class="flex h-1.5 w-1.5 relative">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-amber-400"></span>
+                        </span>
                     </div>
-                    
-                    <h3 class="text-5xl font-black text-white mb-8 tracking-tighter leading-[0.9]">
-                        ZAPHYR <br>PORTAL_01
-                    </h3>
-                    
-                    <p class="text-gray-400 text-xl leading-relaxed font-light italic mb-10 border-l-2 border-indigo-500/30 pl-6">
-                        "Opening a whole new portal into the virtual world... 
-                        Something beyond the digital horizon."
+                    <p class="text-xs text-zinc-400 mb-6 font-light">
+                        The debut decentralized interface. Structuring personal knowledge directories with deep verification models.
                     </p>
+                </div>
+                <div>
+                    <!-- Interactive Countdown Timer Block -->
+                    <div class="grid grid-cols-4 gap-2 text-center">
+                        <div class="bg-black/50 border border-brand-borderMuted p-3 rounded-lg">
+                            <span id="days" class="font-display font-bold text-xl sm:text-2xl text-white block">00</span>
+                            <span class="text-[9px] text-zinc-500 uppercase font-mono">Days</span>
+                        </div>
+                        <div class="bg-black/50 border border-brand-borderMuted p-3 rounded-lg">
+                            <span id="hours" class="font-display font-bold text-xl sm:text-2xl text-white block">00</span>
+                            <span class="text-[9px] text-zinc-500 uppercase font-mono">Hours</span>
+                        </div>
+                        <div class="bg-black/50 border border-brand-borderMuted p-3 rounded-lg">
+                            <span id="minutes" class="font-display font-bold text-xl sm:text-2xl text-white block">00</span>
+                            <span class="text-[9px] text-zinc-500 uppercase font-mono">Min</span>
+                        </div>
+                        <div class="bg-black/50 border border-brand-borderMuted p-3 rounded-lg">
+                            <span id="seconds" class="font-display font-bold text-xl sm:text-2xl text-amber-500 block">00</span>
+                            <span class="text-[9px] text-zinc-500 uppercase font-mono">Sec</span>
+                        </div>
+                    </div>
+                    <div class="text-[9px] text-zinc-500 font-mono mt-3 text-center uppercase tracking-wider">Target Date: June 28, 2026 @ 9:00 AM EST</div>
+                </div>
+            </div>
+
+            <!-- Countdown 02: Next Reveal Pipeline -->
+            <div class="bg-brand-card border border-brand-border rounded-xl p-6 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between border-b border-brand-borderMuted pb-3 mb-4">
+                        <span class="text-[10px] font-mono text-zinc-500 font-bold uppercase tracking-widest">02 // NEXT REVEAL PIPELINE</span>
+                        <span class="h-1.5 w-1.5 rounded-full bg-zinc-700"></span>
+                    </div>
+                    <p class="text-xs text-zinc-400 mb-6 font-light">
+                        Classified relational network directory mapping physical and technological domain interconnections in real-time.
+                    </p>
+                </div>
+                <div>
+                    <!-- Countdown P2 -->
+                    <div class="grid grid-cols-4 gap-2 text-center opacity-70">
+                        <div class="bg-black/50 border border-brand-borderMuted p-3 rounded-lg">
+                            <span id="days-p2" class="font-display font-bold text-xl sm:text-2xl text-white block">00</span>
+                            <span class="text-[9px] text-zinc-500 uppercase font-mono">Days</span>
+                        </div>
+                        <div class="bg-black/50 border border-brand-borderMuted p-3 rounded-lg">
+                            <span id="hours-p2" class="font-display font-bold text-xl sm:text-2xl text-white block">00</span>
+                            <span class="text-[9px] text-zinc-500 uppercase font-mono">Hours</span>
+                        </div>
+                        <div class="bg-black/50 border border-brand-borderMuted p-3 rounded-lg">
+                            <span id="minutes-p2" class="font-display font-bold text-xl sm:text-2xl text-white block">00</span>
+                            <span class="text-[9px] text-zinc-500 uppercase font-mono">Min</span>
+                        </div>
+                        <div class="bg-black/50 border border-brand-borderMuted p-3 rounded-lg">
+                            <span id="seconds-p2" class="font-display font-bold text-xl sm:text-2xl text-zinc-400 block">00</span>
+                            <span class="text-[9px] text-zinc-500 uppercase font-mono">Sec</span>
+                        </div>
+                    </div>
+                    <div class="text-[9px] text-zinc-500 font-mono mt-3 text-center uppercase tracking-wider">Target Date: October 24, 2026 @ 12:00 PM EST</div>
+                </div>
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- The Ecosystem Map -->
+    <section id="ecosystem" class="py-20 border-t border-brand-border max-w-5xl mx-auto px-4">
+        
+        <div class="max-w-3xl mx-auto text-center mb-16">
+            <span class="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">Ecosystem Structure</span>
+            <h2 class="font-display font-medium text-2xl sm:text-3xl text-white mt-1">Interconnected Intelligence Channels</h2>
+            <p class="text-zinc-400 text-xs sm:text-sm mt-3 font-light max-w-xl mx-auto">
+                Zaphyr establishes independent modular platforms to link information networks seamlessly.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            
+            <!-- Node 1 -->
+            <div class="bg-brand-card border border-brand-border rounded-xl p-6 flex flex-col justify-between hover:border-zinc-800 transition-colors duration-300">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="w-8 h-8 rounded bg-zinc-950 border border-brand-border flex items-center justify-center text-xs text-white">
+                            01
+                        </span>
+                        <span class="text-[9px] font-mono bg-amber-500/10 text-amber-500 px-2 py-0.5 rounded font-bold uppercase">Ready</span>
+                    </div>
+                    <h3 class="font-display font-medium text-sm text-white mb-2">Veridex Atlas</h3>
+                    <p class="text-zinc-400 text-xs leading-relaxed font-light">
+                        A structured knowledge platform that organizes raw information into clear, easy-to-read sections with verifiable sources.
+                    </p>
+                </div>
+                <div class="pt-4 border-t border-brand-borderMuted mt-6 flex justify-between text-[10px] text-zinc-500">
+                    <span>Sector:</span>
+                    <span class="font-mono text-zinc-300">PKM Core</span>
+                </div>
+            </div>
+
+            <!-- Node 2 -->
+            <div class="bg-brand-card border border-brand-border rounded-xl p-6 flex flex-col justify-between hover:border-zinc-800 transition-colors duration-300">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="w-8 h-8 rounded bg-zinc-950 border border-brand-border flex items-center justify-center text-xs text-white">
+                            02
+                        </span>
+                        <span class="text-[9px] font-mono bg-zinc-900 text-zinc-500 px-2 py-0.5 rounded font-bold uppercase">Classified</span>
+                    </div>
+                    <h3 class="font-display font-medium text-sm text-white mb-2">Synapse Matrix</h3>
+                    <p class="text-zinc-400 text-xs leading-relaxed font-light">
+                        A relational map showing exactly how different directories, projects, and ideas connect with each other in real-time.
+                    </p>
+                </div>
+                <div class="pt-4 border-t border-brand-borderMuted mt-6 flex justify-between text-[10px] text-zinc-500">
+                    <span>Sector:</span>
+                    <span class="font-mono text-zinc-300">Graph Database</span>
+                </div>
+            </div>
+
+            <!-- Node 3 -->
+            <div class="bg-brand-card border border-brand-border rounded-xl p-6 flex flex-col justify-between hover:border-zinc-800 transition-colors duration-300">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="w-8 h-8 rounded bg-zinc-950 border border-brand-border flex items-center justify-center text-xs text-white">
+                            03
+                        </span>
+                        <span class="text-[9px] font-mono bg-zinc-900 text-zinc-500 px-2 py-0.5 rounded font-bold uppercase">In Dev</span>
+                    </div>
+                    <h3 class="font-display font-medium text-sm text-white mb-2">Grid Sync Connect</h3>
+                    <p class="text-zinc-400 text-xs leading-relaxed font-light">
+                        A secure developer tool allowing custom local notes, applications, and codes to interface safely with our databases.
+                    </p>
+                </div>
+                <div class="pt-4 border-t border-brand-borderMuted mt-6 flex justify-between text-[10px] text-zinc-500">
+                    <span>Sector:</span>
+                    <span class="font-mono text-zinc-300">API Access</span>
+                </div>
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- The Architecture Philosophy / Founder -->
+    <section id="architecture" class="py-20 border-t border-brand-border max-w-4xl mx-auto px-4">
+        <div class="bg-brand-card border border-brand-border rounded-xl p-8 sm:p-12 relative overflow-hidden">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+                
+                <!-- Signature Badge Left -->
+                <div class="md:col-span-4 flex flex-col items-center justify-center text-center">
+                    <div class="w-20 h-20 rounded-full border border-brand-border flex items-center justify-center bg-black mb-4 shadow-inner">
+                        <span class="font-display font-medium text-2xl text-zinc-200">L</span>
+                    </div>
+                    <span class="text-sm font-semibold text-white">Light (Pranav)</span>
+                    <span class="text-[9px] text-zinc-500 font-mono tracking-widest mt-0.5 uppercase">Lead Architect & Founder</span>
+                </div>
+
+                <!-- Philosophy block -->
+                <div class="md:col-span-8 space-y-4">
+                    <span class="text-[9px] font-mono text-amber-500 uppercase tracking-widest">Philosophy Vector</span>
+                    <blockquote class="font-display font-light italic text-lg sm:text-xl text-zinc-100 leading-normal">
+                        "Building interfaces that empower the intellect."
+                    </blockquote>
+                    <p class="text-zinc-400 text-xs sm:text-sm leading-relaxed font-light border-l border-zinc-800 pl-4">
+                        Information architecture demands exactness. The goal is not the generation of more chaotic interfaces or noisy digital spaces, but rather building frameworks where critical ideas are clearly mapped, authenticated, and understood with perfect context.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Gateway Priority Reservation Waitlist -->
+    <section id="waitlist" class="py-20 border-t border-brand-border max-w-4xl mx-auto px-4 text-center">
+        
+        <div class="max-w-xl mx-auto">
+            <span class="text-[10px] font-mono text-amber-500 uppercase tracking-widest">Gateway Registry</span>
+            <h2 class="font-display font-medium text-3xl text-white tracking-tight mt-1">Reserve Architectural Space</h2>
+            
+            <p class="text-amber-500 text-xs mt-3 px-4 py-2 bg-amber-500/5 border border-amber-500/20 rounded-lg inline-block font-mono">
+                NOTICE // Registration will be started soon after our first project launch.
+            </p>
+
+            <!-- Waitlist Form (Sleek minimalist state representation) -->
+            <div class="bg-brand-card border border-brand-border p-6 rounded-xl text-left relative overflow-hidden mt-8">
+                <form id="waitlist-form" onsubmit="handleWaitlistRegister(event)" class="space-y-4">
+                    <div>
+                        <label for="name" class="block text-[10px] font-mono uppercase text-zinc-500 tracking-wider mb-2">Identifier Signature</label>
+                        <input type="text" id="name" required placeholder="eg. Architect Node" class="w-full bg-black border border-brand-border rounded-lg px-4 py-3 text-white text-xs tracking-wide transition-colors focus:border-zinc-700">
+                    </div>
                     
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="p-6 card-glass">
-                            <div class="text-[9px] font-mono text-gray-500 uppercase mb-2">Build State</div>
-                            <div class="text-white font-bold text-sm tracking-widest">ENCRYPTED</div>
-                        </div>
-                        <div class="p-6 card-glass">
-                            <div class="text-[9px] font-mono text-gray-500 uppercase mb-2">Registry</div>
-                            <div class="text-white font-bold text-sm tracking-widest">ZAPHYR_V1</div>
+                    <div>
+                        <label for="email" class="block text-[10px] font-mono uppercase text-zinc-500 tracking-wider mb-2">Electronic Mail Address</label>
+                        <input type="email" id="email" required placeholder="identity@domain.com" class="w-full bg-black border border-brand-border rounded-lg px-4 py-3 text-white text-xs tracking-wide transition-colors focus:border-zinc-700">
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-mono uppercase text-zinc-500 tracking-wider mb-2">Ecosystem Objective Focus</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <label class="flex items-center space-x-2 bg-black border border-brand-border p-3 rounded-lg cursor-pointer hover:border-zinc-800 transition-colors">
+                                <input type="radio" name="focus-option" value="atlas" checked class="text-zinc-800 focus:ring-0">
+                                <span class="text-xs text-zinc-300">Veridex Atlas PKM</span>
+                            </label>
+                            <label class="flex items-center space-x-2 bg-black border border-brand-border p-3 rounded-lg cursor-pointer hover:border-zinc-800 transition-colors">
+                                <input type="radio" name="focus-option" value="api" class="text-zinc-800 focus:ring-0">
+                                <span class="text-xs text-zinc-300">Integrator API</span>
+                            </label>
                         </div>
                     </div>
 
-                    <div class="mt-8 pt-8 border-t border-white/5 flex items-center justify-between">
-                        <span class="text-[10px] font-mono text-gray-600 uppercase tracking-widest">Target Reveal</span>
-                        <span class="text-white font-mono font-bold">31_MARCH_2026</span>
-                    </div>
-                </div>
+                    <button type="submit" class="w-full bg-zinc-200 hover:bg-white text-black font-semibold text-xs py-3.5 rounded-lg uppercase tracking-wider transition-colors duration-200 mt-2">
+                        Pre-Register for Gateway Queue
+                    </button>
+                </form>
 
-                <!-- Right: Countdown Command -->
-                <div class="lg:col-span-7 flex flex-col items-center justify-center">
-                    <div class="flex items-center gap-4 mb-14">
-                        <div class="h-[1px] w-12 bg-white/10"></div>
-                        <div class="text-[11px] font-mono text-gray-500 tracking-[0.8em] uppercase">Stabilizing Singularity</div>
-                        <div class="h-[1px] w-12 bg-white/10"></div>
+                <!-- High-fidelity inline success overlay -->
+                <div id="waitlist-success" class="hidden absolute inset-0 bg-brand-card flex flex-col items-center justify-center p-6 text-center space-y-4">
+                    <span class="w-10 h-10 rounded-full bg-zinc-950 border border-brand-border flex items-center justify-center text-emerald-400">
+                        <i class="fa-solid fa-lock-open text-sm"></i>
+                    </span>
+                    <h3 class="font-display font-medium text-lg text-white">Registry Sequence Staged</h3>
+                    <p class="text-xs text-zinc-400 max-w-xs leading-relaxed">
+                        Your electronic parameters are encrypted. We will alert you immediately as registration sequences begin soon after the launch of Veridex Atlas.
+                    </p>
+                    <div class="text-[10px] text-amber-500 font-mono bg-black px-4 py-1.5 rounded border border-brand-border">
+                        SIGNATURE-ID: <span id="user-hash">Z-XXXX-2026</span>
                     </div>
-                    
-                    <div class="flex flex-wrap justify-center gap-6 md:gap-10">
-                        <div class="countdown-unit">
-                            <div id="days" class="countdown-value">00</div>
-                            <div class="countdown-label">Days</div>
-                        </div>
-                        <div class="text-white/20 text-4xl font-mono mt-2 hidden md:block">:</div>
-                        <div class="countdown-unit">
-                            <div id="hours" class="countdown-value">00</div>
-                            <div class="countdown-label">Hours</div>
-                        </div>
-                        <div class="text-white/20 text-4xl font-mono mt-2 hidden md:block">:</div>
-                        <div class="countdown-unit">
-                            <div id="minutes" class="countdown-value">00</div>
-                            <div class="countdown-label">Mins</div>
-                        </div>
-                        <div class="text-white/20 text-4xl font-mono mt-2 hidden md:block">:</div>
-                        <div class="countdown-unit">
-                            <div id="seconds" class="countdown-value">00</div>
-                            <div class="countdown-label">Secs</div>
-                        </div>
-                    </div>
-
-                    <div class="mt-20 w-full max-w-md">
-                        <div class="flex justify-between mb-4">
-                            <span class="text-[10px] font-mono text-gray-500 uppercase tracking-widest">Syncing Reality...</span>
-                            <span id="percent-label" class="text-[10px] font-mono text-indigo-400 font-bold">64%</span>
-                        </div>
-                        <div class="h-2 w-full bg-white/5 rounded-full overflow-hidden relative p-[2px] border border-white/5">
-                            <div id="progress-bar" class="h-full bg-gradient-to-r from-indigo-600 to-indigo-400 rounded-full shadow-[0_0_20px_rgba(99,102,241,0.5)] transition-all duration-1000" style="width: 64%"></div>
-                        </div>
-                        <div class="mt-6 font-mono text-[9px] text-gray-700 text-center uppercase tracking-[0.5em]">
-                            Packet loss: 0.00% // Latency: 14ms // Secure: True
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-    <!-- About Section -->
-    <section id="about" class="py-40 bg-white/[0.01] border-y border-white/5 relative overflow-hidden">
-        <div class="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-24 items-center">
-            <div class="reveal">
-                <div class="text-[10px] font-mono text-indigo-400 tracking-[0.5em] mb-10 uppercase">Operator_Profile</div>
-                <h2 class="text-7xl font-black mb-10 tracking-tighter leading-[0.8]">THE <br>ARCHITECT</h2>
-                <div class="space-y-8 text-gray-400 text-xl font-light leading-relaxed">
-                    <p>I am <span class="text-white font-medium">Pranav</span>, but in the digital void, I am <span class="text-indigo-400">Light</span>.</p>
-                    <p>Based in <span class="text-white border-b border-indigo-500/30">Chandigarh, India</span>, I spend my cycles building bridges between high-performance systems and user-centric interfaces.</p>
-                </div>
-            </div>
-            <div class="reveal">
-                <div class="rounded-[3rem] p-12 border border-white/10 bg-black/40 backdrop-blur-3xl relative">
-                    <div class="absolute -top-4 -right-4 w-24 h-24 bg-indigo-500/10 rounded-full blur-2xl"></div>
-                    <div class="font-mono text-[11px] text-gray-500 mb-8 uppercase tracking-widest">> CORE_SYSTEM_STATS</div>
-                    <ul class="space-y-6">
-                        <li class="flex items-center justify-between group">
-                            <span class="text-gray-400 group-hover:text-white transition-colors">DECENTRALIZATION</span>
-                            <div class="flex gap-1">
-                                <div class="w-1 h-3 bg-indigo-500"></div><div class="w-1 h-3 bg-indigo-500"></div><div class="w-1 h-3 bg-indigo-500"></div><div class="w-1 h-3 bg-indigo-500"></div><div class="w-1 h-3 bg-gray-800"></div>
-                            </div>
-                        </li>
-                        <li class="flex items-center justify-between group">
-                            <span class="text-gray-400 group-hover:text-white transition-colors">SYSTEM ARCHITECTURE</span>
-                            <div class="flex gap-1">
-                                <div class="w-1 h-3 bg-indigo-500"></div><div class="w-1 h-3 bg-indigo-500"></div><div class="w-1 h-3 bg-indigo-500"></div><div class="w-1 h-3 bg-indigo-500"></div><div class="w-1 h-3 bg-indigo-500"></div>
-                            </div>
-                        </li>
-                        <li class="flex items-center justify-between group">
-                            <span class="text-gray-400 group-hover:text-white transition-colors">OS DEV</span>
-                            <div class="flex gap-1">
-                                <div class="w-1 h-3 bg-indigo-500"></div><div class="w-1 h-3 bg-indigo-500"></div><div class="w-1 h-3 bg-indigo-500"></div><div class="w-1 h-3 bg-gray-800"></div><div class="w-1 h-3 bg-gray-800"></div>
-                            </div>
-                        </li>
-                    </ul>
+                    <button onclick="resetWaitlistForm()" class="text-xs text-zinc-500 hover:text-white underline font-light pt-2">
+                        Add secondary vector
+                    </button>
                 </div>
             </div>
         </div>
+
     </section>
 
-    <!-- Signal / Contact Section -->
-    <section id="contact" class="py-40 px-6 max-w-5xl mx-auto text-center">
-        <h2 class="text-7xl font-black mb-16 tracking-tighter reveal">SEND SIGNAL</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 reveal">
-            <a href="mailto:lighthatari80@gmail.com" class="p-12 bg-white/[0.02] border border-white/5 rounded-[2.5rem] group transition-all hover:bg-white/[0.04] hover:border-indigo-500/30">
-                <i class="fas fa-paper-plane text-2xl text-indigo-400 mb-6 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"></i>
-                <div class="text-gray-500 font-mono text-[10px] uppercase mb-2 tracking-widest">Email_Endpoint</div>
-                <div class="text-white text-xl font-bold tracking-tight">lighthatari80@gmail.com</div>
-            </a>
-            <a href="https://github.com/zaphyrlabs" target="_blank" class="p-12 bg-white/[0.02] border border-white/5 rounded-[2.5rem] group transition-all hover:bg-white/[0.04] hover:border-white/20">
-                <i class="fab fa-github text-3xl text-gray-400 mb-6 group-hover:scale-110 transition-transform"></i>
-                <div class="text-gray-500 font-mono text-[10px] uppercase mb-2 tracking-widest">Source_Repository</div>
-                <div class="text-white text-xl font-bold tracking-tight">github.com/zaphyrlabs</div>
-            </a>
+    <!-- Footer Section -->
+    <footer class="bg-brand-bg border-t border-brand-border py-12 px-4">
+        <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-zinc-500">
+            <div class="flex items-center space-x-3">
+                <svg viewBox="0 0 100 100" class="w-5 h-5 text-zinc-600" stroke="currentColor" stroke-width="8" fill="none">
+                    <path d="M50 15 L85 50 L50 85 L15 50 Z" />
+                </svg>
+                <span>&copy; 2026 Zaphyr Ecosystem. Constructed by Light (Pranav).</span>
+            </div>
+            <div class="flex space-x-6 text-[10px] font-mono">
+                <span>VERIDEX ATLAS LAUNCH DEPLOY</span>
+                <span>SECURE CRYPTO PROTOCOLS</span>
+            </div>
         </div>
-    </section>
-
-    <footer class="py-24 border-t border-white/5 text-center bg-black">
-        <div class="text-[10px] text-gray-700 font-mono uppercase tracking-[1em] mb-4">DESIGNED_BY_LIGHT // BUILT_BY_ZAPHYR</div>
-        <div class="text-[9px] text-gray-800 font-mono uppercase tracking-[0.4em]">© 2024-2026 // ALL_RIGHTS_RESERVED</div>
     </footer>
 
+    <!-- Scripts & Core Ecosystem Engines -->
     <script>
-        // --- Countdown Logic ---
-        const targetDate = new Date("March 31, 2026 00:00:00").getTime();
-        const startDate = new Date("January 1, 2024 00:00:00").getTime();
+        // Setup dual countdown target parameters
+        // Target launch: June 28, 2026 @ 9:00 AM EST (UTC-4)
+        const atlasLaunchDate = new Date("2026-06-28T09:00:00-04:00").getTime();
+        // Target Reveal: October 24, 2026 @ 12:00 PM EST (UTC-4)
+        const nextRevealDate = new Date("2026-10-24T12:00:00-04:00").getTime();
 
-        const updateCountdown = () => {
+        function runCountdowns() {
             const now = new Date().getTime();
-            const distance = targetDate - now;
 
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            // 1. Veridex Atlas Countdown Engine
+            const diffAtlas = atlasLaunchDate - now;
+            if (diffAtlas <= 0) {
+                document.getElementById('days').innerText = "00";
+                document.getElementById('hours').innerText = "00";
+                document.getElementById('minutes').innerText = "00";
+                document.getElementById('seconds').innerText = "00";
+            } else {
+                const d = Math.floor(diffAtlas / (1000 * 60 * 60 * 24));
+                const h = Math.floor((diffAtlas % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const m = Math.floor((diffAtlas % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((diffAtlas % (1000 * 60)) / 1000);
 
-            document.getElementById("days").innerText = days.toString().padStart(2, '0');
-            document.getElementById("hours").innerText = hours.toString().padStart(2, '0');
-            document.getElementById("minutes").innerText = minutes.toString().padStart(2, '0');
-            document.getElementById("seconds").innerText = seconds.toString().padStart(2, '0');
-
-            // Update Progress Bar based on time passed
-            const total = targetDate - startDate;
-            const elapsed = now - startDate;
-            const percentage = Math.min(Math.floor((elapsed / total) * 100), 99);
-            document.getElementById("progress-bar").style.width = percentage + "%";
-            document.getElementById("percent-label").innerText = percentage + "%";
-
-            if (distance < 0) {
-                clearInterval(interval);
-                document.querySelector(".gateway-hub").innerHTML = "<div class='text-center py-20'><h2 class='text-white text-6xl font-black tracking-tighter'>PORTAL OPEN</h2><p class='text-indigo-400 font-mono mt-4'>SINGULARITY_REACHED</p></div>";
+                document.getElementById('days').innerText = String(d).padStart(2, '0');
+                document.getElementById('hours').innerText = String(h).padStart(2, '0');
+                document.getElementById('minutes').innerText = String(m).padStart(2, '0');
+                document.getElementById('seconds').innerText = String(s).padStart(2, '0');
             }
-        };
 
-        const interval = setInterval(updateCountdown, 1000);
-        updateCountdown();
+            // 2. Next Reveal Pipeline Engine
+            const diffNext = nextRevealDate - now;
+            if (diffNext <= 0) {
+                document.getElementById('days-p2').innerText = "00";
+                document.getElementById('hours-p2').innerText = "00";
+                document.getElementById('minutes-p2').innerText = "00";
+                document.getElementById('seconds-p2').innerText = "00";
+            } else {
+                const dP2 = Math.floor(diffNext / (1000 * 60 * 60 * 24));
+                const hP2 = Math.floor((diffNext % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const mP2 = Math.floor((diffNext % (1000 * 60 * 60)) / (1000 * 60));
+                const sP2 = Math.floor((diffNext % (1000 * 60)) / 1000);
 
-        // --- Core Interactions ---
-        const cursor = document.getElementById('cursor');
-        const glow = document.getElementById('cursor-glow');
-        
-        window.addEventListener('mousemove', (e) => {
-            glow.style.left = e.clientX + 'px';
-            glow.style.top = e.clientY + 'px';
-            cursor.style.left = e.clientX + 'px';
-            cursor.style.top = e.clientY + 'px';
-        });
-
-        document.querySelectorAll('a, button, .gateway-hub').forEach(item => {
-            item.addEventListener('mouseenter', () => {
-                cursor.style.width = '60px';
-                cursor.style.height = '60px';
-                cursor.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
-                cursor.style.border = '1px solid rgba(255,255,255,0.2)';
-            });
-            item.addEventListener('mouseleave', () => {
-                cursor.style.width = '8px';
-                cursor.style.height = '8px';
-                cursor.style.backgroundColor = 'white';
-                cursor.style.border = 'none';
-            });
-        });
-
-        // --- Scramble Text ---
-        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        function scrambleText(element) {
-            let iteration = 0;
-            const originalValue = element.dataset.value;
-            let interval = setInterval(() => {
-                element.innerText = originalValue.split("").map((letter, index) => {
-                    if (index < iteration) return originalValue[index];
-                    return letters[Math.floor(Math.random() * 26)];
-                }).join("");
-                if (iteration >= originalValue.length) clearInterval(interval);
-                iteration += 1 / 3;
-            }, 30);
+                document.getElementById('days-p2').innerText = String(dP2).padStart(2, '0');
+                document.getElementById('hours-p2').innerText = String(hP2).padStart(2, '0');
+                document.getElementById('minutes-p2').innerText = String(mP2).padStart(2, '0');
+                document.getElementById('seconds-p2').innerText = String(sP2).padStart(2, '0');
+            }
         }
 
-        document.querySelectorAll('.scramble-trigger').forEach(el => {
-            el.addEventListener('mouseenter', () => scrambleText(el));
+        // Initialize and trigger internal countdown engines
+        runCountdowns();
+        setInterval(runCountdowns, 1000);
+
+        // Responsive mobile menu control
+        const mobileBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
         });
 
-        // --- Grid Bg ---
-        const canvas = document.getElementById('canvas-bg');
-        const ctx = canvas.getContext('2d');
-        let w, h;
-        function init() { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; }
-        function drawGrid() {
-            ctx.clearRect(0, 0, w, h);
-            ctx.strokeStyle = 'rgba(99, 102, 241, 0.08)';
-            ctx.lineWidth = 0.5;
-            const step = 80;
-            for (let x = 0; x < w; x += step) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
-            for (let y = 0; y < h; y += step) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
-        }
-        window.addEventListener('resize', init);
-        init();
-        setInterval(drawGrid, 100);
-
-        // --- Reveal ---
-        function handleReveal() {
-            document.querySelectorAll(".reveal").forEach(el => {
-                if (el.getBoundingClientRect().top < window.innerHeight * 0.9) el.classList.add("active");
+        // Close mobile dropdown upon direct action triggers
+        document.querySelectorAll('#mobile-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
             });
+        });
+
+        // Gateway Queue handler
+        function handleWaitlistRegister(event) {
+            event.preventDefault();
+            
+            const nameVal = document.getElementById('name').value;
+            const emailVal = document.getElementById('email').value;
+
+            if (nameVal && emailVal) {
+                const signatureHash = "Z-" + Math.floor(1000 + Math.random() * 8999) + "-2026";
+                document.getElementById('user-hash').innerText = signatureHash;
+                document.getElementById('waitlist-success').classList.remove('hidden');
+            }
         }
-        window.addEventListener('scroll', handleReveal);
-        handleReveal();
+
+        function resetWaitlistForm() {
+            document.getElementById('waitlist-form').reset();
+            document.getElementById('waitlist-success').classList.add('hidden');
+        }
     </script>
 </body>
 </html>
